@@ -17,5 +17,5 @@ setup(
         'console_scripts': ['windfarm = windfarm:main']
     },
     zip_safe = False,
-    dependency_links = ["https://github.com/snare/scruffy/tarball/v0.3#egg=scruffy"]
+    dependency_links = ["https://github.com/snare/scruffy/tarball/master#egg=scruffy"]
 )
