@@ -187,20 +187,21 @@ class WindfarmBot(object):
         log.info("Checking mentions...")
         try:
             s = self.api.GetMentions(count=self.config.mentions.count, since_id=self.state['last_mention_id'])
-            for status in s:
+            for status in reversed(s):
                 reply = "@{} {}".format(status.user.screen_name, self.generate())
                 log.info("Replying to mention id {} with {}".format(status.id, reply))
+                self.state['last_mention_id'] = status.id
 
                 try:
                     self.api.PostUpdate(reply, in_reply_to_status_id=status.id)
                 except twitter.TwitterError as e:
                     log.error("Error occurred while posting mention: {}".format(e))
 
-                self.state['last_mention_id'] = status.id
         except twitter.TwitterError as e:
             log.error("Error occurred while checking mentions: {}".format(e))
 
         self.state['last_mention_time'] = time.time()
+        self.state.save()
         self.mention_timer = self.setup_timer(self.config.mentions, self.state['last_mention_time'], self.check_mentions)
         self.mention_timer.start()
 
@@ -214,21 +215,22 @@ class WindfarmBot(object):
 
         try:
             s = self.api.GetSearch(term=effect, count=self.config.search.count, since_id=self.state['last_search_id'])
-            for status in s:
+            for status in reversed(s):
                 if status.user.screen_name != self.creds.screen_name:
                     reply = "@{} {}".format(status.user.screen_name, self.generate(effect=effect))
                     log.info("Replying to status id {} with {}".format(status.id, reply))
+                    self.state['last_search_id'] = status.id
 
                     try:
                         self.api.PostUpdate(reply, in_reply_to_status_id=status.id)
                     except twitter.TwitterError as e:
                         log.error("Error occurred while posting mention: {}".format(e))
 
-                    self.state['last_search_id'] = status.id
         except twitter.TwitterError as e:
             log.error("Error occurred while searching: {}".format(e))
 
         self.state['last_search_time'] = time.time()
+        self.state.save()
         self.search_timer = self.setup_timer(self.config.search, self.state['last_search_time'], self.search_and_reply)
         self.search_timer.start()
 

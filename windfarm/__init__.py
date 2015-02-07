@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import os
 
 from scruffy import Environment
 from .main import main
@@ -48,11 +49,18 @@ def setup_env():
         'loggers': {
             'bot': {
                 'handlers': ['default'],
-                'level': 'DEBUG',
+                'level': 'INFO',
                 'propagate': False
             }
         }
     })
+
+    # update config from environment variables for heroku
+    for var in ['api_keys.consumer_key', 'api_keys.consumer_secret', 'api_keys.access_key', 'api_keys.access_secret']:
+        try:
+            config[var] = os.environ[var.upper()]
+        except KeyError:
+            continue
 
 
 setup_env()
