@@ -66,6 +66,9 @@ class WindfarmBot(object):
         log.info("Authenticated as '{}'".format(self.creds.screen_name))
         log.debug("Credentials: {}".format(self.creds))
 
+        if self.config.test_mode:
+            self.api.PostUpdate = self.test_post_update
+
     def loop(self):
         """
         Loop forever doing stuff.
@@ -241,3 +244,6 @@ class WindfarmBot(object):
         for tweet in self.api.GetUserTimeline():
             log.info("Deleting tweet id {}".format(tweet.id))
             self.api.DestroyStatus(tweet.id)
+
+    def test_post_update(self, *args, **kwargs):
+        log.info("PostUpdate(): args = {} kwargs = {}".format(args, kwargs))
